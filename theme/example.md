@@ -56,11 +56,9 @@ paginate: true
 
 フロントマターで `paginate: true` を指定すると全スライドに番号が入ります。
 
----
-marp: true
-theme: custom
-paginate: true
----
+> marp: true
+> theme: custom
+> paginate: true
 
 特定のスライドで非表示にしたい場合は `<!-- _paginate: false -->` を追加。表紙や中扉で使います。
 

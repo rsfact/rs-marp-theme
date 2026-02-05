@@ -219,7 +219,7 @@ description: サンプルスライドです。
 <!-- _class: title　-->
 <!-- _paginate: false -->
 
-![classmethod-logo w:400px](https://classmethod.jp/wp-content/themes/cmn/assets/images/common/logo_classmethod.svg)
+![logo w:400px](https://placehold.jp/400x400.png)
 
 # このページはタイトルに適しています
 
@@ -575,5 +575,5 @@ $$
 
 <!-- _class: all-text-center align-center -->
 
-![w:450px](https://classmethod.jp/wp-content/themes/cmn/assets/images/common/logo_classmethod.svg)
+![w:450px](https://placehold.jp/450x450.png)
 ```

@@ -100,8 +100,13 @@ section.section h2::after {
     margin-top: 24px;
 }
 
+section.image {
+    align-items: center;
+}
+
 section.image p:has(img) {
     flex: 1;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -119,8 +119,15 @@ section.image img {
 }
 
 section.content-right {
-    padding-right: 45%;
+    padding: 70px 90px;
     position: relative;
+    overflow: hidden;
+}
+
+section.content-right > *:not(p:has(img)) {
+    max-width: 50%;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 section.content-right p:has(img) {
@@ -136,6 +143,9 @@ section.content-right p:has(img) {
 }
 
 section.content-right img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
     border-radius: var(--radius);
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
 }

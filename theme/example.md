@@ -9,6 +9,8 @@ paginate: true
 
 # Minimal **Marp** Theme
 
+<br>
+
 シンプルで美しいスライドを、Markdownだけで
 
 ---
@@ -20,7 +22,7 @@ paginate: true
 
 ---
 
-### **10種**のレイアウト
+### <i class="fa-solid fa-layer-group"></i> **10種**のレイアウト
 
 | クラス名 | 用途 |
 |---|---|
@@ -39,7 +41,7 @@ paginate: true
 
 ---
 
-### **基本**の書き方
+### <i class="fa-solid fa-pen-nib"></i> **基本**の書き方
 
 クラス指定は `<!-- _class: クラス名 -->` で行います。
 
@@ -53,7 +55,9 @@ paginate: true
 
 <!-- _class: highlight -->
 
-### **highlight** で中央にメッセージ
+### <i class="fa-solid fa-bullhorn"></i> **highlight** で中央にメッセージ
+
+<br>
 
 キーメッセージを1つだけ、大きく伝える。
 
@@ -61,7 +65,7 @@ paginate: true
 
 <!-- _class: metric -->
 
-### **metric** で数字を見せる
+### <i class="fa-solid fa-chart-line"></i> **metric** で数字を見せる
 
 - **120%**
   売上成長率
@@ -76,7 +80,7 @@ paginate: true
 
 <!-- _class: grid -->
 
-### **grid** で3列に並べる
+### <i class="fa-solid fa-grip"></i> **grid** で3列に並べる
 
 - 項目A
 - 項目B
@@ -89,7 +93,7 @@ paginate: true
 
 <!-- _class: content-right -->
 
-### **content-right** で画像配置
+### <i class="fa-solid fa-image"></i> **content-right** で画像配置
 
 左側にテキスト、右側に画像。
 
@@ -103,13 +107,13 @@ paginate: true
 
 <!-- _class: image -->
 
-### **image** で画像を主役に
+### <i class="fa-solid fa-expand"></i> **image** で画像を主役に
 
 ![](https://placehold.jp/800x400.png)
 
 ---
 
-### **テーブル**の基本
+### <i class="fa-solid fa-table"></i> **テーブル**の基本
 
 通常のMarkdownテーブルが使えます。
 
@@ -124,7 +128,7 @@ paginate: true
 
 <!-- _class: table-lg -->
 
-### **table-lg** で大きめテーブル
+### <i class="fa-solid fa-table-columns"></i> **table-lg** で大きめテーブル
 
 | 項目 | 値 |
 |---|---|
@@ -137,7 +141,7 @@ paginate: true
 
 <!-- _class: table-sm -->
 
-### **table-sm** で小さめテーブル
+### <i class="fa-solid fa-table-list"></i> **table-sm** で小さめテーブル
 
 | 項目 | 説明 | 備考 |
 |---|---|---|
@@ -150,9 +154,11 @@ paginate: true
 
 <!-- _class: accent -->
 
-### **accent** でアクセント強調
+### <i class="fa-solid fa-fire"></i> **accent** でアクセント強調
 
 上部にアクセントカラーのボーダーが付きます。
+
+<br>
 
 - 見出しのstrongもアクセントカラーに変化
 - `table-lg accent` のように組み合わせるとテーブルヘッダーも変化
@@ -168,11 +174,13 @@ paginate: true
 
 ---
 
-### 使える**色**
+### <i class="fa-solid fa-palette"></i> 使える**色**
 
-- **Primary** `#799BF9` — 見出し強調、リンク
-- **Accent** `#FFA775` — 引用線、セクション下線、`accent` ボーダー
-- **Danger** `#FF5151` — 警告や注意喚起（CSS変数として定義済み）
+<br>
+
+- <i class="fa-solid fa-circle" style="color: var(--color-primary);"></i> **Primary** `#799BF9` — 見出し強調、リンク
+- <i class="fa-solid fa-circle" style="color: var(--color-accent);"></i> **Accent** `#FFA775` — 引用線、セクション下線、`accent` ボーダー
+- <i class="fa-solid fa-circle" style="color: var(--color-danger);"></i> **Danger** `#FF5151` — 警告や注意喚起（CSS変数として定義済み）
 
 > 色は最小限に。多すぎると散漫になります。
 
@@ -182,5 +190,7 @@ paginate: true
 <!-- _paginate: false -->
 
 # Write **Less**, Show More
+
+<br>
 
 余計なものを削ぎ落とし、伝えたいことだけを

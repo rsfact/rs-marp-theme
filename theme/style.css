@@ -1,6 +1,7 @@
 /* @theme custom */
 
 @import 'default';
+@import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
 
 :root {
     --color-bg: #FAFAFA;
@@ -29,8 +30,10 @@ blockquote { border-left: 5px solid var(--color-accent); padding-left: 28px; mar
 blockquote::before, blockquote::after { display: none; }
 
 table { width: 100%; border-collapse: collapse; font-size: 24px; line-height: 1.6; margin: 8px 0 16px 0; table-layout: fixed; word-wrap: break-word; overflow-wrap: break-word; }
-thead { background: var(--color-primary); }
-thead th { color: #fff !important; font-weight: 700; font-size: 22px; padding: 10px 16px; text-align: left; border: none; }
+thead { background: var(--color-bg-alt); }
+thead th,
+thead th * { color: var(--color-black) !important; font-weight: 700; font-size: 22px; }
+thead th { padding: 10px 16px; text-align: left; border: none; }
 tbody td { padding: 9px 16px; border-bottom: 1px solid var(--color-bg-alt); vertical-align: top; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:nth-child(even) { background: rgba(0,0,0,0.025); }

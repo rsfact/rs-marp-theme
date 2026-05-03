@@ -1,47 +1,75 @@
+window.addEventListener("error", (e) => {
+  const p = document.getElementById("preview");
+  if (p) p.innerHTML = `<pre style="color:#FF5151;white-space:pre-wrap;padding:16px">window error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}</pre>`;
+});
+window.addEventListener("unhandledrejection", (e) => {
+  const p = document.getElementById("preview");
+  if (p) p.innerHTML = `<pre style="color:#FF5151;white-space:pre-wrap;padding:16px">unhandled rejection: ${e.reason && e.reason.message ? e.reason.message : e.reason}</pre>`;
+});
+
 import { Marp } from "https://esm.sh/@marp-team/marp-core@4";
+
+const loadJSZip = async () => (await import("https://esm.sh/jszip@3")).default;
 
 const editor = document.getElementById("editor");
 const preview = document.getElementById("preview");
 const pdfBtn = document.getElementById("pdfBtn");
 const editorMode = document.getElementById("editorMode");
+const importBtn = document.getElementById("importBtn");
+const exportBtn = document.getElementById("exportBtn");
+const importFile = document.getElementById("importFile");
 
-const DEFAULT_THEME_URL =
+const STYLE_URL =
   "https://raw.githubusercontent.com/rsfact/rs-marp-theme/refs/heads/main/theme/style.css";
 
-const sampleMarkdown = `---
-marp: true
-theme: custom
-paginate: true
----
+const cacheBust = (url) => {
+  const ts = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
+  return `${url}${url.includes("?") ? "&" : "?"}v=${ts}`;
+};
 
-# Marp Converter
-
-\`rs-marp-theme\` の style.css（GitHub）を初期テーマとして読み込みます。上の切り替えで Markdown / CSS を編集できます。
-
----
-
-## リアルタイムプレビュー
-
-- 左で編集
-- 右で即時反映
-`;
-
-let mdText = sampleMarkdown;
-let cssText = "";
-let lastEditorMode = "md";
-
-const loadDefaultCss = async () => {
-  const r = await fetch(DEFAULT_THEME_URL, { cache: "no-store" });
-  if (!r.ok) throw new Error("デフォルトテーマ（rs-marp-theme）を読めません");
+const loadStyle = async () => {
+  const r = await fetch(cacheBust(STYLE_URL), { cache: "no-store" });
+  if (!r.ok) throw new Error(`style.css を読めません: ${STYLE_URL}`);
   return r.text();
 };
 
-cssText = await loadDefaultCss();
+let mdText = editor.value;
+let cssText = "";
+let lastEditorMode = "md";
 
-const createMarp = () => {
-  const marp = new Marp({ html: true });
-  marp.themeSet.add(cssText);
-  return marp;
+const localImageStore = new Map();
+const IMG_REF = /!\[([^\]]*)\]\(\.\/([^)\s]+)\)/g;
+
+const resolveLocalEmbeds = (md) =>
+  md.replace(IMG_REF, (full, alt, name) => {
+    const url = localImageStore.get(name);
+    return url ? `![${alt}](${url})` : full;
+  });
+
+const referencedNames = (md) => {
+  const names = new Set();
+  for (const m of md.matchAll(IMG_REF)) names.add(m[2]);
+  return names;
+};
+
+const sanitizeName = (name) => {
+  const dot = name.lastIndexOf(".");
+  const ext = dot >= 0 ? name.slice(dot).toLowerCase() : "";
+  const base = (dot >= 0 ? name.slice(0, dot) : name)
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "");
+  return (base || "image") + ext;
+};
+
+const uniqueName = (name) => {
+  if (!localImageStore.has(name)) return name;
+  const dot = name.lastIndexOf(".");
+  const base = dot >= 0 ? name.slice(0, dot) : name;
+  const ext = dot >= 0 ? name.slice(dot) : "";
+  let i = 1;
+  while (localImageStore.has(`${base}-${i}${ext}`)) i++;
+  return `${base}-${i}${ext}`;
 };
 
 const withFrontmatter = (md) => {
@@ -49,21 +77,33 @@ const withFrontmatter = (md) => {
   return `---\nmarp: true\ntheme: custom\npaginate: true\n---\n\n${md}`;
 };
 
-// ドロップ画像の実体（data URL）。エディタには marp-embed:ID のみ表示
-const localImageStore = new Map();
-const EMBED_IMG = /!\[([^\]]*)\]\(marp-embed:([^)]+)\)/g;
+const ensureThemeName = (css, name = "custom") => {
+  if (/\/\*\s*@theme\s+\S+\s*\*\//.test(css)) {
+    return css.replace(/\/\*\s*@theme\s+\S+\s*\*\//, `/* @theme ${name} */`);
+  }
+  return `/* @theme ${name} */\n${css}`;
+};
 
-const resolveLocalEmbeds = (md) =>
-  md.replace(EMBED_IMG, (full, alt, id) => {
-    const url = localImageStore.get(id);
-    return url ? `![${alt}](${url})` : full;
-  });
+const createMarp = () => {
+  const marp = new Marp({ html: true });
+  if (cssText) marp.themeSet.add(ensureThemeName(cssText));
+  return marp;
+};
+
+const showError = (msg) => {
+  preview.innerHTML = `<pre style="color:#FF5151;white-space:pre-wrap;padding:16px">${msg}</pre>`;
+};
 
 const render = () => {
-  const marp = createMarp();
-  const markdown = withFrontmatter(resolveLocalEmbeds(mdText));
-  const { html, css } = marp.render(markdown);
-  preview.innerHTML = `<style>${css}</style>${html}`;
+  try {
+    const marp = createMarp();
+    const markdown = withFrontmatter(resolveLocalEmbeds(mdText));
+    const { html, css } = marp.render(markdown);
+    preview.innerHTML = `<style>${css}</style>${html}`;
+  } catch (e) {
+    showError(`render error: ${e.message}\n${e.stack || ""}`);
+    console.error(e);
+  }
 };
 
 const syncEditorFromMode = () => {
@@ -91,22 +131,19 @@ editor.addEventListener("input", () => {
   render();
 });
 
-// PNG / JPEG をドロップするとファイル名＋短い参照を挿入（画像データはメモリのみ）
 const allowedImageFile = (file) => {
   if (file.type === "image/png" || file.type === "image/jpeg") return true;
   if (!file.type && /\.(png|jpe?g)$/i.test(file.name)) return true;
   return false;
 };
 
-const readFileAsDataURL = (file) =>
+const readAsDataURL = (blob) =>
   new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onload = () => resolve(r.result);
     r.onerror = () => reject(r.error);
-    r.readAsDataURL(file);
+    r.readAsDataURL(blob);
   });
-
-const safeImageAlt = (name) => name.replace(/\]/g, "");
 
 let editorDndDepth = 0;
 
@@ -144,11 +181,10 @@ editor.addEventListener("drop", async (e) => {
 
   const blocks = await Promise.all(
     files.map(async (file) => {
-      const id = crypto.randomUUID();
-      const dataUrl = await readFileAsDataURL(file);
-      localImageStore.set(id, dataUrl);
-      const alt = safeImageAlt(file.name);
-      return `![${alt}](marp-embed:${id})`;
+      const name = uniqueName(sanitizeName(file.name));
+      const dataUrl = await readAsDataURL(file);
+      localImageStore.set(name, dataUrl);
+      return `![${name}](./${name})`;
     })
   );
   const insertion = `${blocks.join("\n\n")}\n`;
@@ -161,10 +197,69 @@ editor.addEventListener("drop", async (e) => {
   editor.focus();
 });
 
-syncEditorFromMode();
-render();
+const downloadBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
 
-// ポップアップではなく iframe で印刷（window.open 失敗時を避ける）
+const exportZip = async () => {
+  persistEditorToMode();
+  const JSZip = await loadJSZip();
+  const zip = new JSZip();
+  zip.file("slide.md", mdText);
+  const refs = referencedNames(mdText);
+  for (const [name, dataUrl] of localImageStore) {
+    if (!refs.has(name)) continue;
+    const blob = await (await fetch(dataUrl)).blob();
+    zip.file(name, blob);
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  downloadBlob(blob, "slide.zip");
+};
+
+const importZip = async (file) => {
+  const JSZip = await loadJSZip();
+  const zip = await JSZip.loadAsync(file);
+  const entries = Object.values(zip.files).filter((e) => !e.dir);
+  let md = null;
+  const images = new Map();
+  for (const entry of entries) {
+    const name = entry.name.split("/").pop();
+    if (/\.md$/i.test(name)) {
+      if (md === null) md = await entry.async("string");
+    } else if (/\.(png|jpe?g)$/i.test(name)) {
+      const mime = /\.png$/i.test(name) ? "image/png" : "image/jpeg";
+      const base64 = await entry.async("base64");
+      images.set(name, `data:${mime};base64,${base64}`);
+    }
+  }
+  if (md === null) throw new Error("ZIP内に Markdown ファイル(.md)が見つかりません");
+  localImageStore.clear();
+  for (const [k, v] of images) localImageStore.set(k, v);
+  mdText = md;
+  syncEditorFromMode();
+  render();
+};
+
+exportBtn.addEventListener("click", () => {
+  exportZip().catch((e) => alert(e.message));
+});
+
+importBtn.addEventListener("click", () => importFile.click());
+importFile.addEventListener("change", async () => {
+  const file = importFile.files[0];
+  if (!file) return;
+  try { await importZip(file); }
+  catch (e) { alert(e.message); }
+  finally { importFile.value = ""; }
+});
+
 const printHtmlDocument = (fullHtml) => {
   const iframe = document.createElement("iframe");
   iframe.setAttribute(
@@ -177,9 +272,7 @@ const printHtmlDocument = (fullHtml) => {
   doc.write(fullHtml);
   doc.close();
 
-  const cleanup = () => {
-    iframe.remove();
-  };
+  const cleanup = () => iframe.remove();
 
   const runPrint = () => {
     try {
@@ -207,7 +300,7 @@ pdfBtn.addEventListener("click", () => {
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Marp PDF</title>
+  <title>RS Marp Editor</title>
   <style>
     ${css}
     body { margin: 0; background: #fff; }
@@ -217,3 +310,13 @@ pdfBtn.addEventListener("click", () => {
 </html>`;
   printHtmlDocument(fullHtml);
 });
+
+preview.innerHTML = `<pre style="padding:16px;color:#888">style.css を読み込み中…</pre>`;
+
+loadStyle()
+  .then((css) => { cssText = css; render(); })
+  .catch((e) => {
+    console.error("style.css load failed:", e);
+    showError(`style.css 読み込み失敗: ${e.message}\n（テーマなしで描画します）`);
+    setTimeout(render, 1500);
+  });

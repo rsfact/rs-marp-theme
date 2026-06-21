@@ -72,17 +72,18 @@ const uniqueName = (name) => {
   return `${base}-${i}${ext}`;
 };
 
-const withFrontmatter = (md) => {
-  if (/^---[\s\S]*?---\s*/.test(md)) return md;
-  return `---\nmarp: true\ntheme: custom\npaginate: true\n---\n\n${md}`;
+const themeName = (css) => {
+  const m = css.match(/\/\*\s*@theme\s+(\S+)\s*\*\//);
+  return m ? m[1] : "rs-marp-theme-v0.1.0";
 };
 
-const ensureThemeName = (css, name = "custom") => {
-  if (/\/\*\s*@theme\s+\S+\s*\*\//.test(css)) {
-    return css.replace(/\/\*\s*@theme\s+\S+\s*\*\//, `/* @theme ${name} */`);
-  }
-  return `/* @theme ${name} */\n${css}`;
+const withFrontmatter = (md) => {
+  if (/^---[\s\S]*?---\s*/.test(md)) return md;
+  return `---\nmarp: true\ntheme: ${themeName(cssText)}\ntitle: "RS Marp"\npaginate: true\n---\n\n${md}`;
 };
+
+const ensureThemeName = (css, name = "rs-marp-theme-v0.1.0") =>
+  /\/\*\s*@theme\s+\S+\s*\*\//.test(css) ? css : `/* @theme ${name} */\n${css}`;
 
 const createMarp = () => {
   const marp = new Marp({ html: true });

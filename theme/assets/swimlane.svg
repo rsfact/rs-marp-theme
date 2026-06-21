@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 240" font-family="'Noto Sans JP',sans-serif">
+  <rect x="160" y="10" width="830" height="68" fill="#fff" stroke="#E6E8EC"/>
+  <rect x="160" y="86" width="830" height="68" fill="#FAFAFA" stroke="#E6E8EC"/>
+  <rect x="160" y="162" width="830" height="68" fill="#fff" stroke="#E6E8EC"/>
+  <text x="20" y="50" fill="#333" font-size="18" font-weight="700">計画</text>
+  <text x="20" y="126" fill="#333" font-size="18" font-weight="700">開発</text>
+  <text x="20" y="202" fill="#333" font-size="18" font-weight="700">公開</text>
+  <rect x="180" y="26" width="220" height="36" rx="10" fill="#799BF9"/>
+  <text x="200" y="50" fill="#fff" font-size="17" font-weight="700">要件定義</text>
+  <rect x="330" y="102" width="330" height="36" rx="10" fill="#FFA775"/>
+  <text x="350" y="126" fill="#fff" font-size="17" font-weight="700">設計・実装</text>
+  <rect x="600" y="178" width="250" height="36" rx="10" fill="#4FD1B5"/>
+  <text x="620" y="202" fill="#fff" font-size="17" font-weight="700">検証・公開準備</text>
+  <line x1="850" y1="6" x2="850" y2="234" stroke="#FF5151" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="858" y="20" fill="#FF5151" font-size="15" font-weight="700">公開日</text>
+</svg>
